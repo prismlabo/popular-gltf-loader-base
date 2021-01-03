@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>glTF loader test</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="main.css">
+</head>
+
+<body>
+
+    <div id="info">
+        <h1>PIKA DRINK WEBGL BY <a href="https://madfield.github.io/madfield/index.html">GYUMI</a></h1>
+        <hr style="border: 1px solid #000000;">
+        <p><strong>이 코드는 GLTF 파일을 웹에서 실시간 렌더링하고 사용자와 최소한의 인터랙션을 하기 위한 기본적인 구조를 가지고 있습니다. <br>
+                <a href="https://threejs.org/docs/index.html#examples/en/loaders/GLTFLoader">'GLTFLoader'</a> 오픈소스 코드를 참고하였습니다.<br>
+            </strong></p>
+
+    </div>
+
+
+    <script type="module">
+        import * as THREE from '../build/three.module.js';
+
+        import {
+            OrbitControls
+        } from './jsm/controls/OrbitControls.js';
+        import {
+            GLTFLoader
+        } from './jsm/loaders/GLTFLoader.js';
+        import {
+            RGBELoader
+        } from './jsm/loaders/RGBELoader.js';
+        import {
+            RoughnessMipmapper
+        } from './jsm/utils/RoughnessMipmapper.js';
+
+        let camera, scene, renderer;
+
+        init();
+        render();
+
+        function init() {
+
+            const container = document.createElement('div');
+            //bgcolor
+            const color1 = new THREE.Color();
+            const color5 = new THREE.Color('#fff800');
+            const color6 = new THREE.Color('#ff0');
+
+            document.body.appendChild(container);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.25, 20);
+            camera.position.set(-1.8, 0.6, 2.7);
+
+            scene = new THREE.Scene();
+
+            new RGBELoader()
+                .setDataType(THREE.UnsignedByteType)
+                .setPath('textures/equirectangular/')
+                .load('footprint_court_2k.hdr', function(texture) {
+
+                    const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+
+                    //BGColor
+                    scene.background = color5;
+
+                    scene.environment = envMap;
+
+                    texture.dispose();
+                    pmremGenerator.dispose();
+
+                    render();
+
+                    // Model(.gltf or .glb format is available.)
+
+                    // use of RoughnessMipmapper is optional
+                    const roughnessMipmapper = new RoughnessMipmapper(renderer);
+
+                    const loader = new GLTFLoader().setPath('models/gltf/fizzy_drink/glTF/');
+                    loader.load('pikachu_drink_02.glb', function(gltf) {
+
+                        gltf.scene.traverse(function(child) {
+
+                            if (child.isMesh) {
+
+                                // TOFIX RoughnessMipmapper seems to be broken with WebGL 2.0
+                                // roughnessMipmapper.generateMipmaps( child.material );
+
+                            }
+
+                        });
+
+                        scene.add(gltf.scene);
+
+                        roughnessMipmapper.dispose();
+
+                        render();
+
+                    });
+
+                });
+
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            container.appendChild(renderer.domElement);
+
+            const pmremGenerator = new THREE.PMREMGenerator(renderer);
+            pmremGenerator.compileEquirectangularShader();
+
+            const controls = new OrbitControls(camera, renderer.domElement);
+            controls.addEventListener('change', render); // use if there is no animation loop
+            controls.minDistance = 2;
+            controls.maxDistance = 10;
+
+            //Position
+            controls.target.set(0, 0, 0);
+            controls.update();
+
+            window.addEventListener('resize', onWindowResize, false);
+
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            render();
+
+        }
+
+        //
+
+        function render() {
+
+            renderer.render(scene, camera);
+
+        }
+    </script>
+
+</body></html>
