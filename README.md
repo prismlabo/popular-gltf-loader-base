@@ -6,7 +6,5 @@
 <img src="https://github.com/madfield/webgl_gltf_loader_base/blob/main/samples/desktop_01.png?raw=true">
 <img src="https://github.com/madfield/webgl_gltf_loader_base/blob/main/samples/desktop_02.png?raw=true">
 <img src="https://github.com/madfield/webgl_gltf_loader_base/blob/main/samples/desktop_03.png?raw=true">
-<img src="https://github.com/madfield/webgl_gltf_loader_base/blob/main/samples/desktop_04.png?raw=true">
-<img src="https://github.com/madfield/webgl_gltf_loader_base/blob/main/samples/desktop_05.png?raw=true">
 
 <img src="https://github.com/madfield/webgl_gltf_loader_base/blob/main/samples/mobile_03.png?raw=true">
